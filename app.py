@@ -4,8 +4,8 @@
 import os
 
 # external modules
-from flask import Flask, jsonify, request, redirect, url_for, send_file
-from flask_restful import Api, Resource, reqparse
+from flask import Flask, request, send_from_directory
+from flask_restful import Api, Resource
 
 from hashlib import md5
 from werkzeug.utils import secure_filename
@@ -27,54 +27,27 @@ def allowed_file(filename):
            filename.rsplit(".", 1)[1] in ALLOWED_EXTENSIONS
 
 
-class FileGet(Resource):
+class FileManager(Resource):
 
     """
     Class for work with files.
-    Supports GET option
+    Supports GET, POST, DELETE options
     """
 
-    def get(self, hash_data=None):
-        if not hash_data:
-            return '''
-                <!doctype html>
-                <title>Upload new File</title>
-                <h1>Upload new File</h1>
-                <form action='' method=post enctype=multipart/form-data>
-                  <p><input type=file name=file>
-                     <input type=submit value=Upload>
-                </form>
-                '''
-        if len(hash_data) < 2:
+    def get(self, hash_data=None, download=None):
+        if not hash_data or len(hash_data) < 2:
             return ("Valid hash parameter is needed"), 404
 
         hash_dir = hash_data[0:2]
-        download_dir = UPLOAD_FOLDER + "/" + hash_dir + "/" + hash_data
+        download_dir = UPLOAD_FOLDER + "/" + hash_dir
 
-        if os.path.isfile(download_dir):
-            return send_file(download_dir,  as_attachment=True), 200
+        if os.path.isfile(download_dir+ "/"+ hash_data):
+            if download:
+                return send_from_directory(download_dir, hash_data, as_attachment=True)
+            else:
+                return ("File exists"), 200
         else:
             return ("File was not found"), 404
-
-
-class FileDelete(Resource):
-    """
-
-    Class for work with files.
-    Supports DELETE option
-
-    """
-
-    def get(self, hash_data=None):
-        return '''
-                <!doctype html>
-                <title>Upload new File</title>
-                <h1>Upload new File</h1>
-                <form action='' method=delete enctype=multipart/form-data>
-                  <p><input type=file name=file>
-                     <input type=submit value=Upload>
-                </form>
-                '''
 
     def delete(self, hash_data):
         hash_dir = hash_data[0:2]
@@ -82,32 +55,13 @@ class FileDelete(Resource):
 
         if os.path.isfile(download_dir):
             os.remove(download_dir)
-            return ("File was successfully deleted"), 204
+            return 204
         else:
             return ("File was not found"), 404
 
-
-class FileUpload(Resource):
-    """
-
-    Class for work with files.
-    Supports POST option
-
-    """
-    def get(self, hash_data=None):
-        return '''
-            <!doctype html>
-            <title>Upload new File</title>
-            <h1>Upload new File</h1>
-            <form action='' method=post enctype=multipart/form-data>
-                <p><input type=file name=file>
-                    <input type=submit value=Upload>
-            </form>
-            '''
-
     def post(self):
         if "file" not in request.files:
-            return ("File is needed"), 403
+            return ("File is needed"), 400
 
         file_ = request.files.get("file")
         if not allowed_file(file_.filename):
@@ -125,11 +79,8 @@ class FileUpload(Resource):
         finally:
             return new_hash, 201
 
-
-api.add_resource(FileGet, "/get_file", "/get_file/<hash_data>")
-api.add_resource(FileDelete, "/delete", "/delete/<hash_data>")
-api.add_resource(FileUpload, "/upload", "/upload/<hash_data>")
-
+api.add_resource(FileManager, "/file_manager", "/file_manager/<hash_data>",
+                               "/file_manager/<hash_data>/<download>")
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0")
