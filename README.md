@@ -18,15 +18,15 @@ This script will start building the application and run it in the project root
 #### POST (upload)
 
 ```
-curl -i -X POST -H "Content-Type: multipart/form-data" -F "file=@/path/to/file/some_file.jpg" 127.0.0.1:8020/file_manager
+curl -i -X POST -H "Content-Type: multipart/form-data" -F "file=@/path/to/file/some_file.jpg" localhost:5000/file_manager
 ```
 Returns name (hash view) of created file and 201 code if success
 
-> HTTP/1.0 201 CREATED
-> Content-Type: application/json
-> Content-Length: 35
-> Server: Werkzeug/1.0.1 Python/3.7.4
-> Date: Mon, 14 Sep 2020 09:43:26 GMT
+> HTTP/1.0 201 CREATED \n
+> Content-Type: application/json \n
+> Content-Length: 35 \n
+> Server: Werkzeug/1.0.1 Python/3.7.4 \n
+> Date: Mon, 14 Sep 2020 09:43:26 GMT \n
 >
 > "609cdd2445c2b6bbf6517ab7398548b4"
 
@@ -89,8 +89,8 @@ curl http://localhost:5000/file_manager/6b4ca457f7241c0ba2f2454b761bba34/downloa
 
 Returns downloading log and 200 code if success
 
->  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
->                                 Dload  Upload   Total   Spent    Left  Speed
+>  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current \n
+>                                 Dload  Upload   Total   Spent    Left  Speed \n
 > 100  235k  100  235k    0     0  13.5M      0 --:--:-- --:--:-- --:--:-- 13.5M
 
 #### DELETE
