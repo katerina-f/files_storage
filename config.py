@@ -1,4 +1,4 @@
-""" Глобальные конфигурации для файлового менеджера """
+""" Global config for file manager """
 
 # internal modules
 import os
